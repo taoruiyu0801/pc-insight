@@ -4,7 +4,9 @@
 
 ## 直接使用
 
-双击根目录的 **`启动PCInsight.cmd`**，或打开 **`release/PCInsight.exe`**。
+从 [GitHub Releases](https://github.com/taoruiyu0801/pc-insight/releases) 下载 Windows 压缩包，解压后双击 **`PCInsight.exe`**。
+
+当前本机开发目录已准备好 `release/PCInsight.exe`，也可双击根目录的 **`启动PCInsight.cmd`**。GitHub 源码仓库不包含构建产物；仅下载源码时需按下方说明构建。
 
 1. 在「我的项目」创建项目，填写标题 / 域名识别关键词。
 2. 回到「今日概览」，选择当前目标，点击「开始记录」。首次启动和重新启动时均为暂停状态。
@@ -24,7 +26,7 @@
 - 支持按所选日期导入已有记录。区间重叠会去重，重复导入不会重复计时。
 - 历史导入不会把今天的目标套到过去；可在活动详情补上当时目标。
 
-本次下载并校验了官方 ActivityWatch v0.14.0 便携版，放在 `.tools/activitywatch/activitywatch`。可双击根目录 **`启动ActivityWatch.cmd`**。此启动入口会启动 ActivityWatch 自己的采集器；它的数据和配置由 ActivityWatch 管理。
+本机开发环境已下载并校验官方 ActivityWatch v0.14.0 便携版，放在 `.tools/activitywatch/activitywatch`，可双击根目录 **`启动ActivityWatch.cmd`**。这个缓存目录不会上传 GitHub；在其他电脑请从 [ActivityWatch 官方发布页](https://github.com/ActivityWatch/activitywatch/releases) 安装并启动。ActivityWatch 自己的采集器、数据和配置由它单独管理。
 
 **两个软件的控制范围独立**：PC Insight 的暂停、标题关闭和排除设置仅作用于 PC Insight；不会停止或删除 ActivityWatch 自己的记录。ActivityWatch 的离开阈值由它的 AFK watcher 配置决定。
 
