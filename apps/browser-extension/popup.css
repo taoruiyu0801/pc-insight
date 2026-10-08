@@ -1,0 +1,53 @@
+body {
+  width: 300px;
+  padding: 20px;
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  color: #294536;
+  background: #f7f9f4;
+}
+h1 {
+  font-size: 23px;
+  margin: 0 0 8px;
+}
+p {
+  font-size: 12px;
+  color: #718267;
+  line-height: 1.8;
+}
+label {
+  font-size: 11px;
+  color: #687d5c;
+  display: block;
+}
+input[type="password"] {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 10px 0;
+  padding: 11px;
+  border: 1px solid #dce6d3;
+  border-radius: 6px;
+}
+button {
+  padding: 11px;
+  background: #315c43;
+  border: 0;
+  color: white;
+  border-radius: 6px;
+  width: 100%;
+  cursor: pointer;
+}
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 18px 0 0;
+}
+small {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #8e9e82;
+  display: block;
+}
+input {
+  accent-color: #315c43;
+}

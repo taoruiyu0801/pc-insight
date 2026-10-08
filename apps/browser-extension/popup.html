@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>PC Insight</h1>
+    <p>连接你的本地工作空间。</p>
+    <form id="pair">
+      <label
+        >桌面版 → 偏好设置 → 浏览器配对码<input
+          id="token"
+          type="password"
+          required
+          autocomplete="off"
+          placeholder="粘贴配对码" /></label
+      ><button type="submit">保存配对</button>
+    </form>
+    <label class="switch"
+      ><input id="enabled" type="checkbox" checked /> 发送当前标签信息</label
+    >
+    <p id="status" role="status">等待连接</p>
+    <small
+      >只发送当前标签的域名和标题至本机。不会发送路径、查询参数或页面正文，隐私窗口不参与记录。</small
+    >
+    <script src="popup.js"></script>
+  </body>
+</html>

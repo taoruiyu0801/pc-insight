@@ -1,0 +1,15 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE IF NOT EXISTS schema_migrations(version INTEGER PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS raw_events(id INTEGER PRIMARY KEY, source_key TEXT UNIQUE NOT NULL, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL CHECK(end_ms>start_ms), payload TEXT NOT NULL);
+CREATE TRIGGER IF NOT EXISTS raw_events_immutable BEFORE UPDATE ON raw_events BEGIN SELECT RAISE(ABORT, 'raw events are immutable'); END;
+CREATE INDEX IF NOT EXISTS raw_events_time ON raw_events(end_ms);
+CREATE TABLE IF NOT EXISTS external_keys(source_key TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS activities(id TEXT PRIMARY KEY, start_ms INTEGER NOT NULL, end_ms INTEGER NOT NULL CHECK(end_ms>start_ms), fingerprint TEXT NOT NULL, payload TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS activities_time ON activities(start_ms,end_ms);
+CREATE INDEX IF NOT EXISTS activities_fingerprint ON activities(fingerprint,end_ms);
+CREATE TABLE IF NOT EXISTS projects(id TEXT PRIMARY KEY,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS rules(id TEXT PRIMARY KEY,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS corrections(activity_id TEXT PRIMARY KEY REFERENCES activities(id),payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS background_jobs(id TEXT PRIMARY KEY,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS settings(id TEXT PRIMARY KEY,payload TEXT NOT NULL);
+INSERT OR IGNORE INTO schema_migrations VALUES(1);

@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "PC Insight · Browser Context",
+  "version": "0.4.0",
+  "description": "将当前标签的域名与标题发送到你配对的本机 PC Insight，不上传、不读取页面正文。",
+  "permissions": ["tabs", "storage", "alarms"],
+  "host_permissions": ["http://127.0.0.1/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": {
+    "default_title": "PC Insight 配对",
+    "default_popup": "popup.html"
+  },
+  "incognito": "not_allowed"
+}
