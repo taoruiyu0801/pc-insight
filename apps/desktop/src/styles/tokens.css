@@ -1,0 +1,116 @@
+/*
+ * PC Insight — Fieldnotes design tokens.
+ * Every colour used by the interface is defined here. Components refer to
+ * semantic names only. Measured contrast (WCAG, on --canvas #F7F5EF):
+ *   ink 13.8:1 · ink-2 5.8:1 · accent 5.4:1 · line-control 3.7:1 (non-text)
+ *   surface on accent 5.8:1 · ink on any *-soft fill ≥ 11:1
+ * Project colours are user data and are applied as marks, never as text colour.
+ */
+:root {
+  /* paper */
+  --canvas: #f7f5ef;
+  --surface: #fffdf8;
+  --surface-subtle: #efebe2;
+  --surface-sunken: #f2efe7;
+  --surface-hover: #ebe6dc;
+
+  /* ink */
+  --ink: #292620;
+  --ink-2: #655f55;
+  --ink-disabled: #9d968a;
+  --on-accent: #fffdf8;
+
+  /* rules */
+  --line: #d8d2c7;
+  --line-soft: #e6e1d7;
+  --line-control: #857d70;
+
+  /* terracotta: primary actions, selection, the brand mark */
+  --accent: #9c4f38;
+  --accent-hover: #86422e;
+  --accent-soft: #f0ded3;
+  --focus-ring: #9c4f38;
+
+  /* feedback */
+  --success: #4a6741;
+  --success-soft: #e1e8da;
+  --warning: #80621a;
+  --warning-soft: #f3e7c9;
+  --danger: #a0392c;
+  --danger-soft: #f3dcd6;
+  --danger-hover: #8a2f24;
+  --info: #53697e;
+  --info-soft: #dfe5ea;
+
+  /* tracks and work states (fills; text on them is always --ink) */
+  --tone-focus: #5e7a52;
+  --tone-focus-soft: #dde5d5;
+  --tone-interrupt: #b98a2c;
+  --tone-interrupt-soft: #f1e4c4;
+  --tone-distract: #a3505a;
+  --tone-distract-soft: #efd8d7;
+  --tone-unknown: #8a8478;
+  --tone-unknown-soft: #e6e2da;
+  --tone-idle: #b9b1a3;
+  --tone-idle-soft: #eeeae2;
+  --tone-job: #53697e;
+  --tone-job-soft: #dbe2e9;
+  --tone-support: #7d8f9e;
+  --tone-support-soft: #e3e8ec;
+  --tone-neutral: #6e685d;
+  --tone-neutral-soft: #e9e4da;
+  /* the attention lane: neutral paper-grey, so state colour lives in its own lane */
+  --track-attention: #e2dccf;
+  --track-attention-edge: #b7ae9f;
+
+  /* type */
+  --font-sans:
+    "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI",
+    "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --font-serif:
+    "Sitka Heading", "Sitka Text", Cambria, "Noto Serif SC",
+    "Source Han Serif SC", "Songti SC", "Microsoft YaHei UI", "Microsoft YaHei",
+    serif;
+  --font-mono: "Cascadia Mono", Consolas, "Microsoft YaHei UI", monospace;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 15px;
+  --text-xl: 17px;
+  --text-2xl: 21px;
+  --text-3xl: 30px;
+  --text-num: 38px;
+
+  /* space, shape, size */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s7: 32px;
+  --s8: 40px;
+  --s9: 56px;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --control-sm: 28px;
+  --control: 32px;
+  --control-lg: 36px;
+  --rail: 212px;
+
+  --shadow-pop: 0 1px 2px rgb(41 38 32 / 0.06), 0 8px 24px rgb(41 38 32 / 0.1);
+  --shadow-drawer: -12px 0 32px rgb(41 38 32 / 0.1);
+  --scrim: rgb(41 38 32 / 0.28);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --fast: 120ms;
+  --medium: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fast: 0ms;
+    --medium: 0ms;
+  }
+}

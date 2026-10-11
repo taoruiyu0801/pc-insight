@@ -1,0 +1,118 @@
+.current-goal {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+  font-size: var(--text-md);
+}
+.current-goal svg {
+  color: var(--accent);
+  flex: none;
+}
+.index-head {
+  align-items: center;
+}
+.index-date {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+/* A catalogue: number, colour rule, title and keywords, leader, time, actions. */
+.project-index {
+  display: grid;
+}
+.project-index > li {
+  display: grid;
+  grid-template-columns: 28px 4px minmax(0, 2.4fr) minmax(16px, 0.6fr) 96px auto;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s4) 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.project-index > li.is-current {
+  background: linear-gradient(90deg, var(--accent-soft), transparent 60%);
+}
+.pi-no {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  align-self: start;
+  padding-top: 4px;
+  padding-left: 4px;
+}
+.pi-color {
+  align-self: stretch;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgb(41 38 32 / 0.15);
+}
+.pi-main {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.pi-name {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.pi-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.pi-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+.pi-keywords li {
+  max-width: 180px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  line-height: 18px;
+}
+.pi-keywords .more {
+  border-style: dashed;
+  color: var(--ink-2);
+}
+.pi-leader {
+  border-bottom: 1px dotted var(--line-control);
+  align-self: center;
+}
+.pi-time {
+  text-align: right;
+  font-size: var(--text-md);
+  white-space: nowrap;
+}
+.pi-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 132px;
+}
+.current-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--control-sm);
+  padding: 0 10px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--accent);
+}
+@media (max-width: 1120px) {
+  .project-index > li {
+    grid-template-columns: 28px 4px minmax(0, 1fr) 88px auto;
+  }
+  .pi-leader {
+    display: none;
+  }
+}

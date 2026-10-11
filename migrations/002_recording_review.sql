@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS app_state (key TEXT PRIMARY KEY, payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS control_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    at_ms INTEGER NOT NULL,
+    payload TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS control_events_time ON control_events(at_ms);
+CREATE TABLE IF NOT EXISTS correction_batches (
+    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL UNIQUE,
+    payload TEXT NOT NULL
+);
+INSERT OR IGNORE INTO schema_migrations VALUES(2);

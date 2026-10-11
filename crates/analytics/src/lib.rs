@@ -176,4 +176,37 @@ mod tests {
         assert_eq!(s.deep_ms, 0);
         assert_eq!(s.longest_focus_ms, 900_000);
     }
+    #[test]
+    fn anonymized_learning_totals_are_conserved() {
+        let related = 1_882_661;
+        let interrupted = 68_139;
+        let unknown = 292_514;
+        let mut message = activity("primary", "interruption", related, related + interrupted);
+        message.relation = "unrelated".into();
+        let mut pending = activity(
+            "primary",
+            "unknown",
+            related + interrupted,
+            related + interrupted + unknown,
+        );
+        pending.relation = "unknown".into();
+        let end = related + interrupted + unknown;
+        let stats = summarize(
+            &[
+                activity("primary", "focused", 0, related),
+                message,
+                pending,
+                activity("supporting", "focused", 0, end),
+            ],
+            &mut [],
+            0,
+            end,
+            end,
+        );
+        assert_eq!(stats.active_ms, 2_243_314);
+        assert_eq!(stats.focus_ms, related);
+        assert_eq!(stats.interruption_ms, interrupted);
+        assert_eq!(stats.unknown_ms, unknown);
+        assert_eq!(stats.distracted_ms, 0);
+    }
 }

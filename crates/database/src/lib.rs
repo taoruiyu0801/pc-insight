@@ -2,6 +2,7 @@ use pc_domain::*;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{from_str, to_string};
 use std::path::Path;
+mod review;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 pub struct Store {
@@ -19,6 +20,7 @@ impl Store {
         conn.busy_timeout(std::time::Duration::from_secs(5))?;
         conn.pragma_update(None, "journal_mode", "WAL")?;
         conn.execute_batch(include_str!("../../../migrations/001_initial.sql"))?;
+        conn.execute_batch(include_str!("../../../migrations/002_recording_review.sql"))?;
         Ok(Self { conn })
     }
     pub fn append(&mut self, key: &str, activity: &Activity) -> Result<bool> {
@@ -120,6 +122,39 @@ impl Store {
     }
     pub fn save_settings(&self, s: &Settings) -> Result<()> {
         self.put("settings", "main", s)
+    }
+    pub fn last_intent(&self) -> Result<Option<String>> {
+        let value: Option<String> = self
+            .conn
+            .query_row(
+                "SELECT payload FROM app_state WHERE key='last_intent'",
+                [],
+                |r| r.get(0),
+            )
+            .optional()?;
+        Ok(value.map(|v| from_str(&v)).transpose()?.flatten())
+    }
+    pub fn control(&self, event: &ControlEvent, persist_intent: bool) -> Result<()> {
+        let tx = self.conn.unchecked_transaction()?;
+        if persist_intent {
+            tx.execute("INSERT INTO app_state(key,payload) VALUES('last_intent',?1) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload", [to_string(&event.intent_id)?])?;
+        }
+        tx.execute(
+            "INSERT INTO control_events(at_ms,payload) VALUES(?1,?2)",
+            params![event.at, to_string(event)?],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+    pub fn controls(&self, start: Ms, end: Ms) -> Result<Vec<ControlEvent>> {
+        let mut statement = self.conn.prepare(
+            "SELECT payload FROM control_events WHERE at_ms>=?1 AND at_ms<=?2 ORDER BY at_ms,id",
+        )?;
+        let rows = statement.query_map(params![start, end], |r| r.get::<_, String>(0))?;
+        rows.map(|v| Ok(from_str(&v?)?)).collect()
+    }
+    pub fn batches(&self) -> Result<Vec<CorrectionBatch>> {
+        self.list("correction_batches")
     }
     pub fn prune(&self, cutoff: Ms) -> Result<usize> {
         Ok(self

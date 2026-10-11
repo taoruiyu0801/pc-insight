@@ -5,25 +5,51 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <h1>PC Insight</h1>
-    <p>连接你的本地工作空间。</p>
+    <header class="head">
+      <svg
+        class="mark"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <line x1="3" y1="4" x2="15" y2="4" />
+        <line x1="3" y1="8.5" x2="21" y2="8.5" class="accent" />
+        <line x1="7" y1="13" x2="17" y2="13" />
+        <line x1="10" y1="17.5" x2="21" y2="17.5" />
+        <line x1="3" y1="22" x2="12" y2="22" />
+      </svg>
+      <div>
+        <h1>PC Insight</h1>
+        <p class="sub">浏览器上下文 · 只发送到本机</p>
+      </div>
+    </header>
+
+    <p id="status" class="status" role="status" data-tone="wait">等待连接</p>
+
     <form id="pair">
-      <label
-        >桌面版 → 偏好设置 → 浏览器配对码<input
+      <label for="token">配对码</label>
+      <p class="help">桌面版 → 偏好设置 → 连接 → 复制配对码</p>
+      <div class="row">
+        <input
           id="token"
           type="password"
           required
           autocomplete="off"
-          placeholder="粘贴配对码" /></label
-      ><button type="submit">保存配对</button>
+          placeholder="粘贴配对码"
+        />
+        <button type="submit">保存配对</button>
+      </div>
     </form>
-    <label class="switch"
-      ><input id="enabled" type="checkbox" checked /> 发送当前标签信息</label
-    >
-    <p id="status" role="status">等待连接</p>
-    <small
-      >只发送当前标签的域名和标题至本机。不会发送路径、查询参数或页面正文，隐私窗口不参与记录。</small
-    >
+
+    <label class="switch">
+      <input id="enabled" type="checkbox" checked />
+      <span>发送当前标签的域名与标题</span>
+    </label>
+
+    <p class="privacy">
+      只发送当前获焦窗口中活动标签的域名和标题；路径、查询参数和页面正文在发送前即被移除，隐私窗口不参与记录。是否发送与桌面版是否正在记录无关。
+    </p>
     <script src="popup.js"></script>
   </body>
 </html>

@@ -1,0 +1,166 @@
+.measures {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--s5);
+}
+.measure {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: var(--s3) var(--s4) var(--s4);
+}
+.measure:first-child {
+  padding-left: 0;
+}
+.measure + .measure {
+  border-left: 1px solid var(--line);
+}
+.measure dt {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.measure-value {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.measure-note {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+@media (max-width: 1120px) {
+  .measures {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .measure:nth-child(4) {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+.cat-list {
+  display: grid;
+}
+.cat-list li {
+  display: grid;
+  grid-template-columns: 64px minmax(60px, 1fr) 128px;
+  align-items: center;
+  gap: var(--s3);
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: var(--text-md);
+}
+.cat-value {
+  text-align: right;
+  white-space: nowrap;
+}
+.cat-value small {
+  color: var(--ink-2);
+  font-size: var(--text-xs);
+}
+
+/* Weekly bars: heights are value / axis max, with labelled hour gridlines. */
+.week-chart {
+  display: grid;
+  gap: var(--s2);
+  margin: 0;
+}
+.week-plot {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s4);
+  height: 220px;
+  margin-left: 32px;
+  border-bottom: 1px solid var(--ink);
+}
+.week-grid {
+  position: absolute;
+  left: -32px;
+  right: 0;
+  height: 0;
+  border-top: 1px solid var(--line-soft);
+}
+.week-grid em {
+  position: absolute;
+  left: 0;
+  top: -9px;
+  font-style: normal;
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+.week-col {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.week-bar {
+  display: flex;
+  flex-direction: column;
+  width: min(44px, 70%);
+  min-height: 1px;
+}
+.week-bar i {
+  display: block;
+  min-height: 0;
+  flex-basis: 0;
+}
+.wk-focus {
+  background: var(--tone-focus);
+}
+.wk-unrelated {
+  background: var(--tone-interrupt);
+}
+.wk-unknown {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--tone-unknown) 0 2px,
+    var(--tone-unknown-soft) 2px 5px
+  );
+}
+.week-zero,
+.week-missing {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  padding-bottom: 4px;
+}
+.week-axis {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s4);
+  margin-left: 32px;
+  text-align: center;
+}
+.week-axis span {
+  display: grid;
+  font-size: var(--text-sm);
+}
+.week-axis small {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+.week-axis .is-current strong {
+  color: var(--accent);
+}
+.week-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s5);
+  font-size: var(--text-sm);
+  margin-top: var(--s2);
+}
+.week-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+}

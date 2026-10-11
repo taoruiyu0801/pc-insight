@@ -1,11 +1,10 @@
 import { describe, it, expect } from "vitest";
+import { bounds, shiftDate, localDate } from "../apps/desktop/src/lib/dates";
+import { percent } from "../apps/desktop/src/lib/format";
 import {
-  bounds,
-  shiftDate,
-  localDate,
-  percent,
-  report,
-} from "../apps/desktop/src/format";
+  buildReport,
+  reportMarkdown,
+} from "../apps/desktop/src/features/reports/report-model";
 import { demoSnapshot } from "../apps/desktop/src/demo";
 import { sampleDemo } from "./fixtures/demo";
 // @ts-expect-error Extension ships as plain JS, used by Chrome directly.
@@ -27,7 +26,9 @@ describe("date boundaries and exports", () => {
   });
   it("clearly marks demo reports and exports statistics instead of raw titles", () => {
     const data = demoSnapshot(...bounds(localDate()), sampleDemo);
-    const text = report(data, localDate(), "每日", true);
+    const text = reportMarkdown(
+      buildReport("day", [{ date: localDate(), snapshot: data }], true),
+    );
     expect(text).toContain("演示数据");
     expect(text).toContain("4 小时 13 分");
     expect(text).not.toContain("Switching concepts");

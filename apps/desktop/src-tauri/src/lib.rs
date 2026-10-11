@@ -8,7 +8,7 @@ use std::sync::{Arc, Mutex};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    Manager,
+    Emitter, Manager,
 };
 
 pub type Shared = Arc<Mutex<Runtime>>;
@@ -54,19 +54,13 @@ pub fn run() {
             let widget = MenuItem::with_id(app, "widget", "显示 / 隐藏悬浮窗", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show, &pause, &widget, &quit])?;
-            let mut rgba = vec![0u8; 32 * 32 * 4];
-            for y in 0..32 {
-                for x in 0..32 {
-                    let i = (y * 32 + x) * 4;
-                    let accent = (8..24).contains(&x) && (8..24).contains(&y);
-                    rgba[i] = if accent { 211 } else { 24 };
-                    rgba[i + 1] = if accent { 236 } else { 55 };
-                    rgba[i + 2] = if accent { 181 } else { 44 };
-                    rgba[i + 3] = 255;
-                }
-            }
+            // The tray uses the bundled app icon (icons/icon.ico), so both stay in sync.
+            let tray_icon = app
+                .default_window_icon()
+                .cloned()
+                .ok_or("missing default window icon")?;
             TrayIconBuilder::new()
-                .icon(tauri::image::Image::new_owned(rgba, 32, 32))
+                .icon(tray_icon)
                 .tooltip("PC Insight · 本地工作记录")
                 .menu(&menu)
                 .on_menu_event(|app, event| match event.id.as_ref() {
@@ -78,14 +72,19 @@ pub fn run() {
                     }
                     "pause" => {
                         let s = app.state::<Shared>();
-                        if let Ok(mut r) = s.lock() {
-                            r.recording = !r.recording;
-                            r.breaking = false;
-                            r.generation += 1;
-                        };
+                        let result = s.lock().map_err(|e|e.to_string()).and_then(|mut r| { let next=!r.recording; r.set_recording(next,false,false).map_err(|e|e.to_string()) });
+                        match result {
+                            Ok(false) => { let _=commands::request_recording(app.clone()); }
+                            Err(error) => { let _=commands::show_dashboard(app.clone()); let _=app.emit("recording-error",error); }
+                            _ => {}
+                        }
                     }
                     "widget" => {
-                        let _ = commands::toggle_widget(app.clone());
+                        // Off the menu-event (main) thread for the same reason as the command.
+                        let app = app.clone();
+                        tauri::async_runtime::spawn(async move {
+                            let _ = commands::toggle_widget(app).await;
+                        });
                     }
                     "quit" => app.exit(0),
                     _ => {}
@@ -105,6 +104,12 @@ pub fn run() {
             commands::snapshot,
             commands::set_recording,
             commands::set_intent,
+            commands::request_recording,
+            commands::preview_corrections,
+            commands::commit_corrections,
+            commands::undo_correction,
+            commands::correction_history,
+            commands::test_keywords,
             commands::save_project,
             commands::save_rule,
             commands::delete_rule,

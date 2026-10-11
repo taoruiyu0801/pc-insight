@@ -88,6 +88,83 @@ pub struct Session {
     pub active_ms: Ms,
     pub focus_ms: Ms,
     pub activity_ids: Vec<String>,
+    pub interruption_ms: Ms,
+    pub distracted_ms: Ms,
+    pub unknown_ms: Ms,
+    pub members: Vec<ActivitySpan>,
+    pub suggestions: Vec<LearningSuggestion>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivitySpan {
+    pub activity_id: String,
+    pub start: Ms,
+    pub end: Ms,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct CorrectionChange {
+    pub category: Option<String>,
+    pub relation: Option<String>,
+    #[serde(default)]
+    pub override_intent: bool,
+    pub intent_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CorrectionRequest {
+    pub ranges: Vec<ActivitySpan>,
+    pub change: CorrectionChange,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CorrectionTotals {
+    pub active_ms: Ms,
+    pub focus_ms: Ms,
+    pub interruption_ms: Ms,
+    pub distracted_ms: Ms,
+    pub unknown_ms: Ms,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CorrectionPreview {
+    pub token: String,
+    pub ranges: Vec<ActivitySpan>,
+    pub before: CorrectionTotals,
+    pub after: CorrectionTotals,
+    pub overwritten_manual_count: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CorrectionBatch {
+    pub id: String,
+    pub created_at: Ms,
+    pub undone_at: Option<Ms>,
+    pub label: String,
+    pub request: CorrectionRequest,
+    pub preview: CorrectionPreview,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ControlEvent {
+    pub at: Ms,
+    pub kind: String,
+    pub intent_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LearningSuggestion {
+    pub range: ActivitySpan,
+    pub tool: String,
+    pub reason: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -52,6 +52,12 @@ impl Runtime {
         }
         store.recover_jobs()?;
         store.prune(now() - settings.retention_days as i64 * 86_400_000)?;
+        let remembered = store.last_intent()?;
+        let intent = remembered.filter(|id| {
+            store
+                .projects()
+                .is_ok_and(|ps| ps.iter().any(|p| &p.id == id))
+        });
         Ok(Self {
             snapshot_calls: 0,
             aw_last_event: None,
@@ -60,7 +66,7 @@ impl Runtime {
             path,
             recording: false,
             breaking: false,
-            intent: None,
+            intent,
             generation: 0,
             last_sample: None,
             error: None,
@@ -69,6 +75,73 @@ impl Runtime {
             browser: None,
             current_app: None,
         })
+    }
+
+    pub fn set_recording(
+        &mut self,
+        recording: bool,
+        breaking: bool,
+        allow_unassigned: bool,
+    ) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+        if recording && !self.recording && self.intent.is_none() && !allow_unassigned {
+            return Ok(false);
+        }
+        let breaking = recording && breaking;
+        if self.recording == recording && self.breaking == breaking {
+            return Ok(true);
+        }
+        self.store.control(
+            &ControlEvent {
+                at: now(),
+                kind: if !recording {
+                    "pause"
+                } else if breaking {
+                    "break"
+                } else {
+                    "start"
+                }
+                .into(),
+                intent_id: self.intent.clone(),
+            },
+            false,
+        )?;
+        self.recording = recording;
+        self.breaking = breaking;
+        self.generation += 1;
+        self.browser = None;
+        Ok(true)
+    }
+
+    pub fn set_intent(
+        &mut self,
+        intent: Option<String>,
+        allow_unassigned: bool,
+    ) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+        if intent.as_ref().is_some_and(|id| {
+            !self
+                .store
+                .projects()
+                .is_ok_and(|ps| ps.iter().any(|p| &p.id == id))
+        }) {
+            return Err("项目不存在".into());
+        }
+        if self.recording && intent.is_none() && !allow_unassigned {
+            return Ok(false);
+        }
+        if self.intent == intent {
+            return Ok(true);
+        }
+        self.store.control(
+            &ControlEvent {
+                at: now(),
+                kind: "intent".into(),
+                intent_id: intent.clone(),
+            },
+            true,
+        )?;
+        self.intent = intent;
+        self.generation += 1;
+        Ok(true)
     }
 }
 
@@ -290,6 +363,48 @@ pub fn smoke_test() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn remembered_goal_survives_restart_without_starting_recording() {
+        let path = std::env::temp_dir().join(format!("pc-insight-runtime-test-{}.db", id()));
+        {
+            let mut r = Runtime::new(path.clone()).unwrap();
+            assert!(!r.set_recording(true, false, false).unwrap());
+            assert!(!r.recording);
+            assert!(r.set_recording(true, false, true).unwrap());
+            r.set_recording(false, false, false).unwrap();
+            assert!(!r.set_recording(true, false, false).unwrap());
+            r.store
+                .save_project(&Project {
+                    id: "p".into(),
+                    name: "Synthetic".into(),
+                    category: "learning".into(),
+                    color: "#000000".into(),
+                    keywords: vec![],
+                })
+                .unwrap();
+            r.set_intent(Some("p".into()), false).unwrap();
+            assert!(r.set_recording(true, false, false).unwrap());
+            assert!(!r.set_intent(None, false).unwrap());
+            assert_eq!(r.intent, Some("p".into()));
+        }
+        {
+            let mut r = Runtime::new(path.clone()).unwrap();
+            assert_eq!(r.intent, Some("p".into()));
+            assert!(!r.recording);
+            assert!(!r.breaking);
+            r.store
+                .conn
+                .execute("DELETE FROM projects WHERE id='p'", [])
+                .unwrap();
+            r.set_recording(false, false, false).unwrap();
+        }
+        {
+            let r = Runtime::new(path.clone()).unwrap();
+            assert!(r.intent.is_none());
+            assert!(!r.recording);
+        }
+        let _ = std::fs::remove_file(path);
+    }
     #[test]
     fn sleep_is_not_counted_as_hours_of_work() {
         assert_eq!(sample_end(0, 3_600_000, 2), 2_000);
