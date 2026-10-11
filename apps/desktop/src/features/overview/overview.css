@@ -1,0 +1,181 @@
+/* The ledger: one leading figure, then human time and machine time as separate columns. */
+.ledger {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.1fr) minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+.ledger > * {
+  padding: var(--s4) var(--s5) var(--s5);
+}
+.ledger > * + * {
+  border-left: 1px solid var(--line);
+}
+.ledger-main {
+  padding-left: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--s2);
+}
+.ledger-label,
+.ledger-group-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+}
+.ledger-main .figure-xl {
+  font-size: 30px;
+  margin: 2px 0;
+}
+.ledger-sentence {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+.ledger-main .meter {
+  margin-top: var(--s2);
+  max-width: 260px;
+}
+.ledger-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  align-content: start;
+  gap: var(--s3) var(--s4);
+}
+.ledger-group-label {
+  grid-column: 1 / -1;
+}
+.ledger-item {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+}
+.ledger-item dt {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.ledger-item .duration {
+  font-size: 15px;
+}
+.ledger-note {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+.ledger-group.machine {
+  background: linear-gradient(var(--tone-job-soft), var(--tone-job-soft)) left
+    top / 100% 3px no-repeat;
+}
+@media (max-width: 1120px) {
+  .ledger {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .ledger-main {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid var(--line);
+  }
+  .ledger > .ledger-group:nth-child(2) {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+.onboarding {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s4) var(--s5);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.onboarding ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s4);
+}
+.onboarding li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 4px var(--s3);
+  align-items: start;
+  padding-top: var(--s3);
+  border-top: 2px solid var(--line);
+}
+.onboarding li.next {
+  border-top-color: var(--accent);
+}
+.onboarding li.done {
+  border-top-color: var(--tone-focus);
+}
+.onboarding li > span:nth-child(2) {
+  display: grid;
+  font-size: var(--text-md);
+}
+.onboarding li > span:nth-child(2) .secondary-text {
+  font-size: var(--text-sm);
+}
+.onboarding li > :nth-child(n + 3) {
+  grid-column: 2;
+  justify-self: start;
+}
+.step-no {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--line-control);
+  font-size: var(--text-xs);
+}
+.done .step-no {
+  background: var(--tone-focus);
+  border-color: var(--tone-focus);
+  color: var(--on-accent);
+}
+.next .step-no {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Table of contents: number, name, leader dots, value. Shared by projects and reports. */
+.toc {
+  display: grid;
+  align-content: start;
+}
+.toc li {
+  display: grid;
+  grid-template-columns: 26px minmax(0, auto) minmax(24px, 1fr) auto;
+  align-items: baseline;
+  gap: var(--s2);
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.toc-no {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+.toc-name {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+.toc-leader {
+  border-bottom: 1px dotted var(--line-control);
+  transform: translateY(-4px);
+}
+.toc-value {
+  white-space: nowrap;
+}
+.toc-value small {
+  margin-left: 6px;
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+.toc-muted .toc-name {
+  color: var(--ink-2);
+}
+.toc-empty {
+  padding: var(--s2) 0;
+}

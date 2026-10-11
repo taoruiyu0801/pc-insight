@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
+import { bounds, shiftDate, localDate } from "../apps/desktop/src/lib/dates";
+import { percent } from "../apps/desktop/src/lib/format";
 import {
-  bounds,
-  shiftDate,
-  localDate,
-  percent,
-  report,
-} from "../apps/desktop/src/format";
+  buildReport,
+  reportMarkdown,
+} from "../apps/desktop/src/features/reports/report-model";
 import { demoSnapshot } from "../apps/desktop/src/demo";
+import { sampleDemo } from "./fixtures/demo";
 // @ts-expect-error Extension ships as plain JS, used by Chrome directly.
 import { contextFor } from "../apps/browser-extension/context.js";
 
@@ -17,7 +17,7 @@ describe("date boundaries and exports", () => {
     expect(bounds("2026-10-08")[0]).toBe(new Date(2026, 9, 8).getTime());
   });
   it("does not add supporting and background time to computer time", () => {
-    const data = demoSnapshot(...bounds(localDate()));
+    const data = demoSnapshot(...bounds(localDate()), sampleDemo);
     expect(data.stats.activeMs).toBe(253 * 60_000);
     expect(data.stats.focusMs).toBe(248 * 60_000);
     expect(data.stats.parallelMs).toBeLessThanOrEqual(data.stats.activeMs);
@@ -25,8 +25,10 @@ describe("date boundaries and exports", () => {
     expect(percent(0, 0)).toBe(0);
   });
   it("clearly marks demo reports and exports statistics instead of raw titles", () => {
-    const data = demoSnapshot(...bounds(localDate()));
-    const text = report(data, localDate(), "每日", true);
+    const data = demoSnapshot(...bounds(localDate()), sampleDemo);
+    const text = reportMarkdown(
+      buildReport("day", [{ date: localDate(), snapshot: data }], true),
+    );
     expect(text).toContain("演示数据");
     expect(text).toContain("4 小时 13 分");
     expect(text).not.toContain("Switching concepts");

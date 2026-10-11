@@ -9,3 +9,4 @@ pc-domain.workspace = true
 serde_json.workspace = true
 uuid.workspace = true
 rusqlite = { version = "0.37", features = ["bundled"] }
+pc-session.workspace = true

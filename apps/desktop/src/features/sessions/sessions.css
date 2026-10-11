@@ -1,0 +1,45 @@
+.session-card {
+  border-top: 1px solid var(--line);
+}
+.session-card h3 {
+  font-weight: 500;
+}
+.session-card h3 span {
+  font-size: var(--text-sm);
+  margin-left: var(--s3);
+}
+.session-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--s3);
+  margin: var(--s3) 0;
+}
+.session-figures dt {
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+.session-figures dd {
+  margin: var(--s1) 0 0;
+}
+.session-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: var(--s3) 0;
+}
+.session-activity {
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--line);
+}
+.session-activity p {
+  margin: var(--s1) 0;
+}
+.session-piece {
+  padding: var(--s2) 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+.session-piece .link-button {
+  display: block;
+  text-align: left;
+}

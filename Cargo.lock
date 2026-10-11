@@ -2585,6 +2585,7 @@ name = "pc-database"
 version = "0.4.0"
 dependencies = [
  "pc-domain",
+ "pc-session",
  "rusqlite",
  "serde",
  "serde_json",
@@ -2625,6 +2626,7 @@ dependencies = [
 name = "pc-session"
 version = "0.4.0"
 dependencies = [
+ "chrono",
  "pc-classifier",
  "pc-context",
  "pc-domain",

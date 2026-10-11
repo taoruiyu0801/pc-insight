@@ -55,6 +55,63 @@ export interface Session {
   activeMs: number;
   focusMs: number;
   activityIds: string[];
+  interruptionMs: number;
+  distractedMs: number;
+  unknownMs: number;
+  members: ActivitySpan[];
+  suggestions: LearningSuggestion[];
+}
+export interface ActivitySpan {
+  activityId: string;
+  start: number;
+  end: number;
+}
+export interface CorrectionChange {
+  category: Category | null;
+  relation: Relation | null;
+  overrideIntent: boolean;
+  intentId: string | null;
+}
+export interface CorrectionRequest {
+  ranges: ActivitySpan[];
+  change: CorrectionChange;
+}
+export interface CorrectionTotals {
+  activeMs: number;
+  focusMs: number;
+  interruptionMs: number;
+  distractedMs: number;
+  unknownMs: number;
+}
+export interface CorrectionPreview {
+  token: string;
+  ranges: ActivitySpan[];
+  before: CorrectionTotals;
+  after: CorrectionTotals;
+  overwrittenManualCount: number;
+}
+export interface CorrectionBatch {
+  id: string;
+  createdAt: number;
+  undoneAt: number | null;
+  label: string;
+  request: CorrectionRequest;
+  preview: CorrectionPreview;
+}
+export interface ControlEvent {
+  at: number;
+  kind: string;
+  intentId: string | null;
+}
+export interface LearningSuggestion {
+  range: ActivitySpan;
+  tool: string;
+  reason: string;
+}
+export interface KeywordPreview {
+  count: number;
+  examples: string[];
+  hasDomains: boolean;
 }
 export interface Job {
   id: string;

@@ -1,0 +1,343 @@
+/* The time spectrum: a margin of lane names on the left, a ruled score on the right. */
+.spectrum {
+  --margin-w: 128px;
+  display: grid;
+  gap: var(--s3);
+  min-width: 0;
+}
+
+.spectrum-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  padding: var(--s2) 0;
+}
+.spectrum-range {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  min-width: 170px;
+}
+.spectrum-range strong {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+}
+.tool-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding-left: var(--s3);
+  border-left: 1px solid var(--line);
+}
+.spectrum-hint {
+  font-size: var(--text-xs);
+  margin-left: auto;
+}
+
+.spectrum-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--margin-w) minmax(0, 1fr);
+  column-gap: 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: var(--surface);
+}
+
+.lane-margin {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4px var(--s3) 4px var(--s2);
+  border-bottom: 1px solid var(--line-soft);
+  border-right: 1px solid var(--line);
+  background: var(--canvas);
+}
+.lane-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.lane-note {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  line-height: 1.3;
+}
+.ruler-margin {
+  justify-content: flex-end;
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+
+.ruler {
+  position: relative;
+  height: 30px;
+  border-bottom: 1px solid var(--line);
+  user-select: none;
+}
+.ruler.brushable {
+  cursor: col-resize;
+}
+.tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-control);
+}
+.tick.minor {
+  height: 4px;
+  background: var(--line);
+}
+.tick.major {
+  height: 9px;
+}
+.tick.major em {
+  position: absolute;
+  bottom: 11px;
+  left: 0;
+  transform: translateX(-50%);
+  font-style: normal;
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.brush {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgb(156 79 56 / 0.16);
+  border-left: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
+}
+
+.lane-track {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line-soft);
+  cursor: pointer;
+}
+.lane-track:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+  border-radius: 0;
+}
+.lane-track.lane-goal {
+  background: var(--canvas);
+}
+.gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-soft);
+  pointer-events: none;
+}
+.lane-empty {
+  position: absolute;
+  left: var(--s3);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+
+/* Segments are drawn at their true extent; at least 1px so they are not lost. */
+.seg {
+  position: absolute;
+  min-width: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.seg-label {
+  display: block;
+  padding: 0 5px;
+  font-size: 11.5px;
+  line-height: inherit;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.seg-goal {
+  --project: var(--tone-unknown);
+  line-height: 18px;
+  background: color-mix(in srgb, var(--project) 20%, var(--surface));
+  border-left: 2px solid var(--project);
+  border-bottom: 2px solid var(--project);
+}
+.seg-goal.no-goal {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--tone-unknown-soft) 0 3px,
+    var(--surface) 3px 6px
+  );
+  border-color: var(--tone-unknown);
+}
+.seg-attention {
+  line-height: 22px;
+  background: var(--track-attention);
+  border-left: 1px solid var(--track-attention-edge);
+}
+.seg-attention.idle {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--tone-idle) 0 2px,
+    transparent 2px 5px
+  );
+  background-size: 100% 2px;
+  background-position: 0 50%;
+  background-repeat: no-repeat;
+  border: 0;
+}
+.seg-context {
+  line-height: 12px;
+  background: var(--tone-support-soft);
+  border-left: 2px solid var(--tone-support);
+}
+.seg-context .seg-label {
+  font-size: 11px;
+  color: var(--ink);
+}
+.seg-jobs {
+  line-height: 14px;
+  background: var(--tone-job-soft);
+  border-left: 2px solid var(--tone-job);
+  border-right: 2px solid var(--tone-job);
+}
+.seg-jobs.running {
+  border-right: 2px dashed var(--tone-job);
+  background: linear-gradient(90deg, var(--tone-job-soft) 85%, transparent);
+}
+.seg-jobs .seg-label {
+  font-size: 11px;
+}
+.seg-state {
+  top: 3px;
+}
+
+.seg-cursor,
+.seg-focus {
+  position: absolute;
+  min-width: 3px;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.seg-cursor {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+.seg-focus {
+  border: 2px solid var(--accent);
+  background: rgb(156 79 56 / 0.12);
+}
+
+.spectrum-tip {
+  position: absolute;
+  top: 34px;
+  z-index: 5;
+  display: grid;
+  gap: 2px;
+  width: 260px;
+  padding: var(--s2) var(--s3);
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--canvas);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  pointer-events: none;
+  box-shadow: var(--shadow-pop);
+}
+.spectrum-tip strong {
+  font-size: var(--text-md);
+}
+.spectrum-tip .secondary-text {
+  color: var(--line);
+}
+.tip-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chooser {
+  position: absolute;
+  top: 34px;
+  z-index: 6;
+  width: 280px;
+  padding: var(--s3);
+  background: var(--surface);
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-pop);
+  animation: fade-in var(--fast) var(--ease);
+}
+.chooser-head {
+  display: grid;
+  font-size: var(--text-sm);
+  margin-bottom: var(--s2);
+}
+.chooser-head .secondary-text {
+  font-size: var(--text-xs);
+}
+.chooser ul {
+  display: grid;
+  gap: 1px;
+  max-height: 240px;
+  overflow: auto;
+}
+.chooser li button {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s2);
+  width: 100%;
+  padding: 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  font-size: var(--text-sm);
+}
+.chooser li button:hover {
+  background: var(--surface-hover);
+}
+.chooser-zoom {
+  margin-top: var(--s2);
+}
+
+.spectrum-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--s2) var(--s5);
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+.spectrum-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.spectrum-compact .lane-attention .seg-label {
+  font-size: 11px;
+}
+
+/* Several sub-pixel records of different kinds: honest "dense" texture, not a state colour. */
+.seg.dense,
+.dense-swatch {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--tone-neutral) 0 1px,
+    var(--tone-neutral-soft) 1px 2px
+  );
+  border: 0;
+}
+.dense-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+}

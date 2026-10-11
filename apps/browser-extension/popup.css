@@ -1,53 +1,147 @@
+/* Same paper / ink / terracotta vocabulary as the desktop app (see apps/desktop/src/styles/tokens.css). */
+:root {
+  --canvas: #f7f5ef;
+  --surface: #fffdf8;
+  --surface-subtle: #efebe2;
+  --ink: #292620;
+  --ink-2: #655f55;
+  --line: #d8d2c7;
+  --line-control: #857d70;
+  --accent: #9c4f38;
+  --accent-hover: #86422e;
+  --on-accent: #fffdf8;
+  --success: #4a6741;
+  --success-soft: #e1e8da;
+  --warning: #80621a;
+  --warning-soft: #f3e7c9;
+  --danger: #a0392c;
+  --danger-soft: #f3dcd6;
+}
+* {
+  box-sizing: border-box;
+}
 body {
-  width: 300px;
-  padding: 20px;
-  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-  color: #294536;
-  background: #f7f9f4;
+  width: 320px;
+  margin: 0;
+  padding: 16px 18px 18px;
+  font-family:
+    "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI",
+    "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--canvas);
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink);
+}
+.mark line {
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.mark .accent {
+  stroke: var(--accent);
 }
 h1 {
-  font-size: 23px;
-  margin: 0 0 8px;
+  margin: 0;
+  font-family: "Sitka Heading", Cambria, "Microsoft YaHei UI", serif;
+  font-size: 18px;
+  line-height: 1.2;
 }
-p {
+.sub,
+.help {
+  margin: 0;
   font-size: 12px;
-  color: #718267;
-  line-height: 1.8;
+  color: var(--ink-2);
 }
-label {
-  font-size: 11px;
-  color: #687d5c;
-  display: block;
+.status {
+  margin: 12px 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--warning);
+  background: var(--warning-soft);
+  border-radius: 4px;
+}
+.status[data-tone="ok"] {
+  border-left-color: var(--success);
+  background: var(--success-soft);
+}
+.status[data-tone="error"] {
+  border-left-color: var(--danger);
+  background: var(--danger-soft);
+}
+form {
+  display: grid;
+  gap: 4px;
+}
+label[for="token"] {
+  font-weight: 600;
+}
+.row {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
 }
 input[type="password"] {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 10px 0;
-  padding: 11px;
-  border: 1px solid #dce6d3;
-  border-radius: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
 }
 button {
-  padding: 11px;
-  background: #315c43;
+  height: 32px;
+  padding: 0 12px;
   border: 0;
-  color: white;
-  border-radius: 6px;
-  width: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: inherit;
+  font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
+}
+button:hover {
+  background: var(--accent-hover);
+}
+button:disabled {
+  background: var(--surface-subtle);
+  color: var(--ink-2);
+  cursor: progress;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+input[type="password"]:focus-visible {
+  outline-offset: 0;
+  border-color: var(--accent);
 }
 .switch {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin: 18px 0 0;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
 }
-small {
-  font-size: 10px;
-  line-height: 1.9;
-  color: #8e9e82;
-  display: block;
+.switch input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
 }
-input {
-  accent-color: #315c43;
+.privacy {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--ink-2);
 }

@@ -4,7 +4,7 @@ use crate::{
 };
 use pc_domain::*;
 use serde::Serialize;
-use tauri::{Manager, State};
+use tauri::{Emitter, Manager, State};
 use tauri_plugin_autostart::ManagerExt;
 
 #[derive(Serialize)]
@@ -55,8 +55,18 @@ pub fn snapshot(state: State<Shared>, start: Ms, end: Ms) -> Result<Snapshot, St
         .activities(start.saturating_sub(180_000), end.saturating_add(180_000))
         .map_err(err)?;
     let corrections = r.store.corrections().map_err(err)?;
-    let (activities, sessions) =
-        pc_session::derive(&raw, &projects, &rules, &corrections, start, end);
+    let batches = r.store.batches().map_err(err)?;
+    let controls = r.store.controls(start, end).map_err(err)?;
+    let (activities, sessions) = pc_session::derive_with_review(
+        &raw,
+        &projects,
+        &rules,
+        &corrections,
+        &batches,
+        &controls,
+        start,
+        end,
+    );
     let now = now();
     let mut jobs: Vec<_> = r
         .store
@@ -110,25 +120,123 @@ pub fn snapshot(state: State<Shared>, start: Ms, end: Ms) -> Result<Snapshot, St
     })
 }
 #[tauri::command]
-pub fn set_recording(state: State<Shared>, recording: bool, breaking: bool) -> Result<(), String> {
+pub fn set_recording(
+    state: State<Shared>,
+    recording: bool,
+    breaking: bool,
+    allow_unassigned: Option<bool>,
+) -> Result<bool, String> {
     let mut r = state.lock().map_err(err)?;
-    r.recording = recording;
-    r.breaking = recording && breaking;
-    r.generation += 1;
-    r.browser = None;
-    Ok(())
+    r.set_recording(recording, breaking, allow_unassigned.unwrap_or(false))
+        .map_err(err)
 }
 #[tauri::command]
-pub fn set_intent(state: State<Shared>, intent_id: Option<String>) -> Result<(), String> {
+pub fn set_intent(
+    state: State<Shared>,
+    intent_id: Option<String>,
+    allow_unassigned: Option<bool>,
+) -> Result<bool, String> {
     let mut r = state.lock().map_err(err)?;
-    if let Some(id) = &intent_id {
-        if !r.store.projects().map_err(err)?.iter().any(|p| &p.id == id) {
-            return Err("项目不存在".into());
+    r.set_intent(intent_id, allow_unassigned.unwrap_or(false))
+        .map_err(err)
+}
+
+#[tauri::command]
+pub fn request_recording(app: tauri::AppHandle) -> Result<(), String> {
+    show_dashboard(app.clone())?;
+    app.emit("request-recording", ()).map_err(err)
+}
+
+#[tauri::command]
+pub fn preview_corrections(
+    state: State<Shared>,
+    request: CorrectionRequest,
+) -> Result<CorrectionPreview, String> {
+    state
+        .lock()
+        .map_err(err)?
+        .store
+        .preview_correction(&request)
+        .map_err(err)
+}
+#[tauri::command]
+pub fn commit_corrections(
+    state: State<Shared>,
+    batch_id: String,
+    request: CorrectionRequest,
+    token: String,
+    label: String,
+) -> Result<CorrectionBatch, String> {
+    state
+        .lock()
+        .map_err(err)?
+        .store
+        .commit_correction(&batch_id, &request, &token, &label, now())
+        .map_err(err)
+}
+#[tauri::command]
+pub fn undo_correction(state: State<Shared>, batch_id: String) -> Result<(), String> {
+    state
+        .lock()
+        .map_err(err)?
+        .store
+        .undo_correction(&batch_id, now())
+        .map_err(err)
+}
+#[tauri::command]
+pub fn correction_history(
+    state: State<Shared>,
+    offset: usize,
+) -> Result<Vec<CorrectionBatch>, String> {
+    let mut batches = state.lock().map_err(err)?.store.batches().map_err(err)?;
+    batches.reverse();
+    Ok(batches.into_iter().skip(offset).take(25).collect())
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct KeywordPreview {
+    count: usize,
+    examples: Vec<String>,
+    has_domains: bool,
+}
+#[tauri::command]
+pub fn test_keywords(
+    state: State<Shared>,
+    keywords: Vec<String>,
+    start: Ms,
+    end: Ms,
+) -> Result<KeywordPreview, String> {
+    period(start, end)?;
+    if keywords.len() > 30 || keywords.iter().any(|s| s.len() > 200) {
+        return Err("关键词超出限制".into());
+    }
+    let r = state.lock().map_err(err)?;
+    let items = r.store.activities(start, end).map_err(err)?;
+    let mut examples = vec![];
+    let mut count = 0;
+    for a in items.iter().filter(|a| a.role == "primary" && !a.idle) {
+        let text = format!("{} {} {}", a.process, a.title, a.domain).to_lowercase();
+        if keywords
+            .iter()
+            .any(|k| !k.trim().is_empty() && text.contains(&k.trim().to_lowercase()))
+        {
+            count += 1;
+            let label = if a.title.is_empty() {
+                a.process.clone()
+            } else {
+                a.title.clone()
+            };
+            if examples.len() < 5 && !examples.contains(&label) {
+                examples.push(label);
+            }
         }
     }
-    r.intent = intent_id;
-    r.generation += 1;
-    Ok(())
+    Ok(KeywordPreview {
+        count,
+        examples,
+        has_domains: items.iter().any(|a| !a.domain.is_empty()),
+    })
 }
 #[tauri::command]
 pub fn save_project(state: State<Shared>, mut project: Project) -> Result<(), String> {
@@ -194,7 +302,31 @@ pub fn correct_activity(state: State<Shared>, correction: Correction) -> Result<
             }
         }
     }
-    r.store.correct(&correction).map_err(err)
+    let original = r
+        .store
+        .activities(0, i64::MAX)
+        .map_err(err)?
+        .into_iter()
+        .find(|a| a.id == correction.activity_id)
+        .ok_or("活动不存在")?;
+    let request = CorrectionRequest {
+        ranges: vec![ActivitySpan {
+            activity_id: original.id,
+            start: original.start,
+            end: original.end,
+        }],
+        change: CorrectionChange {
+            category: Some(correction.category),
+            relation: Some(correction.relation),
+            override_intent: correction.override_intent,
+            intent_id: correction.intent_id,
+        },
+    };
+    let preview = r.store.preview_correction(&request).map_err(err)?;
+    r.store
+        .commit_correction(&id(), &request, &preview.token, "单条纠正", now())
+        .map_err(err)?;
+    Ok(())
 }
 #[tauri::command]
 pub fn save_settings(state: State<Shared>, mut settings: Settings) -> Result<(), String> {
@@ -260,8 +392,11 @@ pub fn finish_job(state: State<Shared>, job_id: String, status: String) -> Resul
     j.status = status;
     r.store.save_job(&j).map_err(err)
 }
+// Async on purpose: on Windows, building a WebView2 window from a synchronous
+// command (which runs on the main thread) leaves the webview uninitialised —
+// the widget appeared as a blank, unclickable frame. See tauri-apps/wry#583.
 #[tauri::command]
-pub fn toggle_widget(app: tauri::AppHandle) -> Result<(), String> {
+pub async fn toggle_widget(app: tauri::AppHandle) -> Result<(), String> {
     if let Some(w) = app.get_webview_window("widget") {
         if w.is_visible().map_err(err)? {
             w.hide().map_err(err)?
@@ -281,6 +416,7 @@ pub fn toggle_widget(app: tauri::AppHandle) -> Result<(), String> {
         .always_on_top(true)
         .skip_taskbar(true)
         .focused(false)
+        .background_color(tauri::window::Color(247, 245, 239, 255))
         .build()
         .map_err(err)?;
     }

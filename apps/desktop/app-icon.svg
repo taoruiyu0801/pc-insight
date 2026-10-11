@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 24 24">
+  <!-- PC Insight app icon: the five-lane mark (goal, attention, context, background, state) on ink.
+       Source for `node scripts/desktop.mjs icon app-icon.svg`. -->
+  <rect width="24" height="24" rx="5.2" fill="#292620"/>
+  <g stroke-width="2.3" stroke-linecap="round" fill="none">
+    <line x1="5" y1="5.2" x2="14.5" y2="5.2" stroke="#f7f5ef"/>
+    <line x1="5" y1="8.6" x2="19" y2="8.6" stroke="#e08a66"/>
+    <line x1="8.2" y1="12" x2="16.4" y2="12" stroke="#f7f5ef"/>
+    <line x1="10.4" y1="15.4" x2="19" y2="15.4" stroke="#f7f5ef"/>
+    <line x1="5" y1="18.8" x2="11.6" y2="18.8" stroke="#f7f5ef"/>
+  </g>
+</svg>
